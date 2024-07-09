@@ -6,32 +6,46 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    function __construct()
-    {
-        $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index', 'show']]);
-        $this->middleware('permission:product-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:product-edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:product-delete', ['only' => ['destroy']]);
-    }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(): View
-    {
-        $products = Product::latest()->paginate(5);
+    // /**
+    //  * Display a listing of the resource.
+    //  *
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // function __construct()
+    // {
+    //     $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index', 'show']]);
+    //     $this->middleware('permission:product-create', ['only' => ['create', 'store']]);
+    //     $this->middleware('permission:product-edit', ['only' => ['edit', 'update']]);
+    //     $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+    // }
 
-        return view('products.index', compact('products'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            $products = Product::select(['id', 'name', 'detail']);
+
+            return DataTables::of($products)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn = ' <a href="' . route('products.destroy', $row->id) . '" class="fa-solid fa-list">Show</a>';
+                    $btn .= '<a href="' . route('products.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a>';
+                    $btn .= ' <a href="' . route('products.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('products.index');
     }
 
     /**
@@ -52,7 +66,7 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        request()->validate([
+        $request()->validate([
             'name' => 'required',
             'detail' => 'required',
         ]);

@@ -11,6 +11,7 @@ use Hash;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\DataTables;
 
 class UserController extends Controller
 {
@@ -19,12 +20,29 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $data = User::latest()->paginate(5);
+        if ($request->ajax()) {
+            $users = User::select(['id', 'name', 'email']);
 
-        return view('users.index', compact('data'))
-        ->with('i', ($request->input('page', 1) - 1) * 5);
+            return DataTables::of($users)
+                ->addIndexColumn()
+                ->addColumn('roles', function ($row) {
+                    $roles = $row->roles->pluck('name')->map(function ($role) {
+                        return '<label class="badge bg-success">' . $role . '</label>';
+                    })->implode(' ');
+                    return $roles;
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="' . route('users.show', $row->id) . '" class=" btn btn-sm btn-success ">Show</a> ';
+                    $btn .= '<a href="' . route('users.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a> ';
+                    $btn .= ' <a href="' . route('users.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
+                    return $btn;
+                })
+                ->rawColumns(['roles', 'action'])
+                ->make(true);
+        }
+        return view('users.index');
     }
 
     /**

@@ -9,32 +9,47 @@ use Spatie\Permission\Models\Permission;
 use DB;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\DataTables;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    function __construct()
-    {
-        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-        $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    }
+    // /**
+    //  * Display a listing of the resource.
+    //  *
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // function __construct()
+    // {
+    //     $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
+    //     $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
+    //     $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
+    //     $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    // }
 
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $roles = Role::orderBy('id', 'DESC')->paginate(5);
-        return view('roles.index', compact('roles'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        if ($request->ajax()) {
+            $roles = Role::query();
+            $roles = Role::select(['id', 'name']);
+
+            return DataTables::of($roles)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="' . route('roles.show', $row->id) . '" class="fa-solid fa-list">Show</a>';
+                    $btn .= '<a href="' . route('roles.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a>';
+                    $btn .= ' <a href="' . route('roles.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('roles.index');
     }
 
     /**

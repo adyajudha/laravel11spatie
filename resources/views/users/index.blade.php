@@ -57,7 +57,7 @@
     @endforeach
     </table> --}}
 
-    <table class="table table-bordered" id="table_permission">
+    <table class="table table-bordered" id="table_user">
         <thead>
             <tr>
                 <th>No</th>
@@ -78,13 +78,15 @@
         <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
         <script type="text/javascript">
         $(function () {
-                var table = $('#table_permission').DataTable({
+                var table = $('#table_user').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('permissions.index') }}",
+                ajax: "{{ route('users.index') }}",
                 columns: [
-                    {data: 'id', name: 'id'},
+                    {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: 'name', name: 'name'},
+                    {data: 'email', name: 'email'},
+                    {data: 'roles', name: 'roles'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
             });

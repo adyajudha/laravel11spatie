@@ -24,6 +24,7 @@ class PermissionController extends Controller
     //     $this->middleware('permission:permission-edit', ['only' => ['edit', 'update']]);
     //     $this->middleware('permission:permission-delete', ['only' => ['destroy']]);
     // }
+    
     /**
      * Display a listing of the resource.
      *
@@ -34,25 +35,18 @@ class PermissionController extends Controller
         if ($request->ajax()) {
             $permissions = Permission::query();
 
-
             return DataTables::of($permissions)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-
-                $btn = '<a href="' . route('permissions.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a>';
-                $btn .= ' <a href="' . route('permissions.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
-
-
+                    $btn = '<a href="' . route('permissions.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a>';
+                    $btn .= ' <a href="' . route('permissions.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
-        // $permissions = Permission::get;
-
         return view('permissions.index');
-        // ->with('i', ($request()->input('page', 1) - 1) * 5);
     }
 
     /**
