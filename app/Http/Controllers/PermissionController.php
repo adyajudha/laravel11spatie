@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
+use Yajra\DataTables\DataTables;
 
 class PermissionController extends Controller
 {
@@ -28,13 +29,30 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(): View
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $permissions = Permission::query();
 
-        $permissions = Permission::latest()->paginate(5);
 
-        return view('permissions.index', compact('permissions'))
-        ->with('i', (request()->input('page', 1) - 1) * 5);
+            return DataTables::of($permissions)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+
+                $btn = '<a href="' . route('permissions.edit', $row->id) . '" class="edit btn btn-primary btn-sm">Edit</a>';
+                $btn .= ' <a href="' . route('permissions.destroy', $row->id) . '" class="delete btn btn-danger btn-sm">Delete</a>';
+
+
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        // $permissions = Permission::get;
+
+        return view('permissions.index');
+        // ->with('i', ($request()->input('page', 1) - 1) * 5);
     }
 
     /**

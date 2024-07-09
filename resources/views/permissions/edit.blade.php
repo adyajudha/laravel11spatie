@@ -34,11 +34,11 @@
                 <input type="text" name="name" value="{{ $permission->name }}" class="form-control" placeholder="Name">
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        {{-- <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Detail:</strong>
                 <textarea class="form-control" style="height:150px" name="detail" placeholder="Detail">{{ $permission->detail }}</textarea>
-            </div>
+            </div> --}}
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
           <button type="submit" class="btn btn-primary btn-sm mb-2 mt-2"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
@@ -46,5 +46,4 @@
     </div>
 </form>
 
-{{-- <p class="text-center text-primary"><small>Tutorial by ItSolutionStuff.com</small></p> --}}
 @endsection
